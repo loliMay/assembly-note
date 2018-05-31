@@ -19,3 +19,4 @@ START:
 CODES ENDS
     END START
 ;一个寄存器有两个字节
+
