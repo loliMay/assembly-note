@@ -1,42 +1,36 @@
-Microsoft (R) Macro Assembler Version 6.11		    05/31/18 00:35:34
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 11:38:26
 tempfile.asm						     Page 1 - 1
 
 
-				.model small
-				.stack
- 0000				.data
- 0000 05			array db 5
- 0001  00			db 0
- 0002  0005 [			array1 db 5 dup(?)
-        00
+ 0000				DATAS SEGMENT
+ 0000  0006 [			    BUF DB 6 DUP('$')			;开辟6个字节的空间
+        24
        ]
- 0007 0D 0A 24			array2 db 0dh,0ah,'$'
- 0000				.code
+ 0006				DATAS ENDS
 
- 0000  B4 0A			mov ah,0ah
- 0002  BA 0000 R		mov dx,offset array
- 0005  CD 21			int 21h
- 0007  BA 0007 R		mov dx,offset array2
- 000A  B4 09			mov ah,09h
- 000C  CD 21			int 21h
- 000E  BB 0002 R		mov bx,offset array1
- 0011  8A 07			again: mov al,[bx]
- 0013  3C 24			cmp al,'$'
- 0015  74 0F			jz done
- 0017  3C 61			cmp al,'a'
- 0019  72 08			jb next
- 001B  3C 7A			cmp al,'z'
- 001D  77 04			ja next
- 001F  2C 20			sub al,20h
- 0021  88 07			mov [bx],al
- 0023  43			next: inc bx
- 0024  EB EB			jmp again
- 0026  BA 0002 R		done: mov dx,offset array1
- 0029  B4 09			mov ah,09h
- 002B  CD 21			int 21h
-				.exit 0
-				end
-Microsoft (R) Macro Assembler Version 6.11		    05/31/18 00:35:34
+ 0000				STACKS SEGMENT
+				    ;此处输入堆栈段代码
+ 0000				STACKS ENDS
+
+ 0000				CODES SEGMENT
+				    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+ 0000				START:
+ 0000  B8 ---- R		    MOV AX,DATAS
+ 0003  8E D8			    MOV DS,AX
+ 0005  8D 16 0000 R		    LEA DX,BUF ;设置DX,使字符串首地址=DS:DX
+ 0009  8B DA			    MOV BX,DX
+ 000B  C6 07 05			    MOV BYTE PTR[BX],5	;设置缓冲区字节数为0
+ 000E  B4 0A			    MOV AH,0AH
+ 0010  CD 21			    INT 21H
+ 0012  B4 4C			    MOV AH,4CH
+ 0014  CD 21			    INT 21H
+ 0016				CODES ENDS
+				    END START
+				;一个寄存器有两个字节
+
+
+
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 11:38:26
 tempfile.asm						     Symbols 2 - 1
 
 
@@ -46,31 +40,17 @@ Segments and Groups:
 
                 N a m e                 Size     Length   Align   Combine Class
 
-DGROUP . . . . . . . . . . . . .	GROUP
-_DATA  . . . . . . . . . . . . .	16 Bit	 000A	  Word	  Public  'DATA'	
-STACK  . . . . . . . . . . . . .	16 Bit	 0400	  Para	  Stack	  'STACK'	 
-_TEXT  . . . . . . . . . . . . .	16 Bit	 0032	  Word	  Public  'CODE'	
+CODES  . . . . . . . . . . . . .	16 Bit	 0016	  Para	  Private 
+DATAS  . . . . . . . . . . . . .	16 Bit	 0006	  Para	  Private 
+STACKS . . . . . . . . . . . . .	16 Bit	 0000	  Para	  Private 
 
 
 Symbols:
 
                 N a m e                 Type     Value    Attr
 
-@CodeSize  . . . . . . . . . . .	Number	 0000h	 
-@DataSize  . . . . . . . . . . .	Number	 0000h	 
-@Interface . . . . . . . . . . .	Number	 0000h	 
-@Model . . . . . . . . . . . . .	Number	 0002h	 
-@code  . . . . . . . . . . . . .	Text   	 _TEXT
-@data  . . . . . . . . . . . . .	Text   	 DGROUP
-@fardata?  . . . . . . . . . . .	Text   	 FAR_BSS
-@fardata . . . . . . . . . . . .	Text   	 FAR_DATA
-@stack . . . . . . . . . . . . .	Text   	 DGROUP
-again  . . . . . . . . . . . . .	L Near	 0011	  _TEXT	
-array1 . . . . . . . . . . . . .	Byte	 0002	  _DATA	
-array2 . . . . . . . . . . . . .	Byte	 0007	  _DATA	
-array  . . . . . . . . . . . . .	Byte	 0000	  _DATA	
-done . . . . . . . . . . . . . .	L Near	 0026	  _TEXT	
-next . . . . . . . . . . . . . .	L Near	 0023	  _TEXT	
+BUF  . . . . . . . . . . . . . .	Byte	 0000	  DATAS	
+START  . . . . . . . . . . . . .	L Near	 0000	  CODES	
 
 	   0 Warnings
 	   0 Errors
