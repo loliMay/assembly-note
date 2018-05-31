@@ -1,9 +1,9 @@
-Microsoft (R) Macro Assembler Version 6.11		    05/31/18 11:38:26
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 11:56:14
 tempfile.asm						     Page 1 - 1
 
 
  0000				DATAS SEGMENT
- 0000  0006 [			    BUF DB 6 DUP('$')			;开辟6个字节的空间
+ 0000  0006 [			    BUF DB 6 DUP('$')			;开辟6个字节的空间(包括字符串结束符'$')
         24
        ]
  0006				DATAS ENDS
@@ -17,20 +17,27 @@ tempfile.asm						     Page 1 - 1
  0000				START:
  0000  B8 ---- R		    MOV AX,DATAS
  0003  8E D8			    MOV DS,AX
+ 0005				INPUT:
  0005  8D 16 0000 R		    LEA DX,BUF ;设置DX,使字符串首地址=DS:DX
  0009  8B DA			    MOV BX,DX
- 000B  C6 07 05			    MOV BYTE PTR[BX],5	;设置缓冲区字节数为0
+ 000B  C6 07 05			    MOV BYTE PTR[BX],5	;设置缓冲区字节数为5
  000E  B4 0A			    MOV AH,0AH
  0010  CD 21			    INT 21H
- 0012  B4 4C			    MOV AH,4CH
- 0014  CD 21			    INT 21H
- 0016				CODES ENDS
+ 0012  8B FA			    MOV DI,DX	;获取缓冲区首地址，放在DI中
+ 0014  8A 3D			    MOV BH, [DI]   ;获取输入缓冲区的最大字符数  
+ 0016  8A 5D 01			    MOV BL, [DI+1] ;获取输入缓冲区中实际输入的字符数
+ 0019  B4 09			    MOV AH,9
+ 001B  CD 21			    INT 21H
+ 001D				EXIT:
+ 001D  B4 4C			    MOV AH,4CH
+ 001F  CD 21			    INT 21H
+ 0021				CODES ENDS
 				    END START
 				;一个寄存器有两个字节
 
 
 
-Microsoft (R) Macro Assembler Version 6.11		    05/31/18 11:38:26
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 11:56:14
 tempfile.asm						     Symbols 2 - 1
 
 
@@ -40,7 +47,7 @@ Segments and Groups:
 
                 N a m e                 Size     Length   Align   Combine Class
 
-CODES  . . . . . . . . . . . . .	16 Bit	 0016	  Para	  Private 
+CODES  . . . . . . . . . . . . .	16 Bit	 0021	  Para	  Private 
 DATAS  . . . . . . . . . . . . .	16 Bit	 0006	  Para	  Private 
 STACKS . . . . . . . . . . . . .	16 Bit	 0000	  Para	  Private 
 
@@ -50,6 +57,8 @@ Symbols:
                 N a m e                 Type     Value    Attr
 
 BUF  . . . . . . . . . . . . . .	Byte	 0000	  DATAS	
+EXIT . . . . . . . . . . . . . .	L Near	 001D	  CODES	
+INPUT  . . . . . . . . . . . . .	L Near	 0005	  CODES	
 START  . . . . . . . . . . . . .	L Near	 0000	  CODES	
 
 	   0 Warnings
