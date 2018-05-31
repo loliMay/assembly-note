@@ -1,0 +1,92 @@
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 23:57:45
+tempfile.asm						     Page 1 - 1
+
+
+ 0000				DATAS SEGMENT
+ 0000 0091 002D 0032 0033	    num dw 145,45,50,51		;数组
+ 0008				DATAS ENDS
+
+ 0000				CODES SEGMENT
+				    ASSUME CS:CODES,DS:DATAS
+ 0000				START:
+ 0000  B8 ---- R		    MOV AX,DATAS
+ 0003  8E D8			    MOV DS,AX
+ 0005  8D 1E 0000 R		    lea bx,num		  
+ 0009  8B 47 02			    mov ax,[bx+2]
+ 000C  E8 0004			    call printax
+				    
+ 000F  B4 4C			    MOV ah,4CH
+ 0011  CD 21			    INT 21H
+
+				;以10进制输出ax中的无符号整数(0-65536)
+ 0013				printax proc
+ 0013  BB 000A			      mov  bx, 10	;将bx赋值为10
+ 0016  0B C0			      or   ax, ax	;如果ax的值为0,则跳转至_0_
+ 0018  74 14			      jz   _0_
+ 001A				loop_p:
+ 001A  33 D2			      xor  dx, dx	;将dx清空
+ 001C  F7 F3			      div  bx		;除法默认被除数是ax,ax/10并将结果存在ax中
+ 001E  8B C8			      mov  cx, ax	;将商赋值给cx
+ 0020  0B CA			      or   cx, dx	;判断商和余数
+ 0022  74 10			      jz   _e_		;如果商和余数都为0,则结束递归(递归出口)
+ 0024  52			      push dx		;保存dx中的余数
+ 0025  E8 FFF2			      call loop_p	;递归
+ 0028  5A			      pop  dx		;将栈中余数弹出到dx中
+ 0029  80 C2 30			      add  dl, '0'  ;进行ASCII转码
+ 002C  EB 02			      jmp  _1_		;打印余数
+ 002E  B2 30			_0_:  mov  dl, '0'	;直接打印0
+ 0030  B4 02			_1_:  mov  ah, 2
+ 0032  CD 21			      int  21h
+ 0034  C3			_e_:  ret
+ 0035				printax endp
+
+				;打印回车换行
+ 0035				printbr proc
+ 0035  B2 0D				mov dl,0dh
+ 0037  B4 02				mov ah,2
+ 0039  CD 21				int 21h
+ 003B  B2 0A				mov dl,0ah
+ 003D  B4 02				mov ah,2
+ 003F  CD 21				int 21h
+ 0041  C3				ret
+ 0042				printbr endp
+
+ 0042				CODES ENDS
+				    END START
+
+
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 23:57:45
+tempfile.asm						     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+CODES  . . . . . . . . . . . . .	16 Bit	 0042	  Para	  Private 
+DATAS  . . . . . . . . . . . . .	16 Bit	 0008	  Para	  Private 
+
+
+Procedures,  parameters and locals:
+
+                N a m e                 Type     Value    Attr
+
+printax  . . . . . . . . . . . .	P Near	 0013	  CODES	Length= 0022 Public
+  loop_p . . . . . . . . . . . .	L Near	 001A	  CODES	
+  _0_  . . . . . . . . . . . . .	L Near	 002E	  CODES	
+  _1_  . . . . . . . . . . . . .	L Near	 0030	  CODES	
+  _e_  . . . . . . . . . . . . .	L Near	 0034	  CODES	
+printbr  . . . . . . . . . . . .	P Near	 0035	  CODES	Length= 000D Public
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+START  . . . . . . . . . . . . .	L Near	 0000	  CODES	
+num  . . . . . . . . . . . . . .	Word	 0000	  DATAS	
+
+	   0 Warnings
+	   0 Errors

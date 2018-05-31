@@ -1,13 +1,23 @@
-Microsoft (R) Macro Assembler Version 6.11		    05/31/18 12:46:34
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 13:12:23
 tempfile.asm						     Page 1 - 1
 
 
  0000				datas segment
- 0000  0007 [			    buf db 7 dup('$')	;开辟7个字节的空间(包括Enter键和字符串结束符'$')
+ 0000  00FC [			    buf db 252 dup('$')	;开辟7个字节的空间(包括Enter键和字符串结束符'$')
         24
        ]
- 0007 0D 0A 24			    br db 0dh,0ah,'$'
- 000A				datas ends
+ 00FC 0D 0A 24			    br db 0dh,0ah,'$'
+ 00FF 50 6C 65 61 73 65		    msg1 db 'Please input some text:',0dh,0ah,24h
+       20 69 6E 70 75 74
+       20 73 6F 6D 65 20
+       74 65 78 74 3A 0D
+       0A 24
+ 0119 54 68 65 20 6C 65		    msg2 db 'The letters you typed is:$'
+       74 74 65 72 73 20
+       79 6F 75 20 74 79
+       70 65 64 20 69 73
+       3A 24
+ 0133				datas ends
 
  0000				stacks segment
 				    ;此处输入堆栈段代码
@@ -18,28 +28,40 @@ tempfile.asm						     Page 1 - 1
  0000				start:
  0000  B8 ---- R		    mov ax,datas
  0003  8E D8			    mov ds,ax
- 0005				input:
- 0005  8D 16 0000 R		    lea dx,buf ;设置dx,使字符串首地址=ds:dx
- 0009  8B DA			    mov bx,dx
- 000B  C6 07 06			    mov byte ptr[bx],6	;设置缓冲区字节数为5(不包括回车)
- 000E  B4 0A			    mov ah,0ah
- 0010  CD 21			    int 21h
- 0012  8D 16 0007 R		    lea dx,br
- 0016  B4 09			    mov ah,9
+
+ 0005  8D 16 00FF R			lea dx,msg1	   ;显示提示信息1
+ 0009  B4 09			    mov ah,9
+ 000B  CD 21			    int 21h
+					
+ 000D  8D 16 0000 R		    lea dx,buf ;设置dx,使字符串首地址=ds:dx
+ 0011  8B DA			    mov bx,dx
+ 0013  C6 07 FA			    mov byte ptr[bx],250	;设置缓冲区长度
+ 0016  B4 0A			    mov ah,0ah
  0018  CD 21			    int 21h
- 001A  8A 16 0001 R			mov dl,buf+1
- 001E  B4 02			    mov ah,2
+				    
+ 001A  8D 16 00FC R		    lea dx,br	;打印换行
+ 001E  B4 09			    mov ah,9
  0020  CD 21			    int 21h
- 0022				exit:
- 0022  B4 4C				mov ah,4ch
- 0024  CD 21			    int 21h
- 0026				codes ends
+				    
+ 0022  8D 16 0119 R		    lea dx,msg2	   ;显示提示信息2
+ 0026  B4 09			    mov ah,9
+ 0028  CD 21			    int 21h
+				    
+ 002A  8A 1E 0001 R		    mov bl,buf+1
+ 002E  80 C3 30			    add bl,48		;将10进制数字转换为ASCII显示
+ 0031  8A D3				mov dl,bl
+ 0033  B4 02			    mov ah,2
+ 0035  CD 21			    int 21h
+ 0037				exit:
+ 0037  B4 4C				mov ah,4ch
+ 0039  CD 21			    int 21h
+ 003B				codes ends
 				    end start
 				    
 				;一个寄存器有两个字节
 
 
-Microsoft (R) Macro Assembler Version 6.11		    05/31/18 12:46:34
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 13:12:23
 tempfile.asm						     Symbols 2 - 1
 
 
@@ -49,8 +71,8 @@ Segments and Groups:
 
                 N a m e                 Size     Length   Align   Combine Class
 
-codes  . . . . . . . . . . . . .	16 Bit	 0026	  Para	  Private 
-datas  . . . . . . . . . . . . .	16 Bit	 000A	  Para	  Private 
+codes  . . . . . . . . . . . . .	16 Bit	 003B	  Para	  Private 
+datas  . . . . . . . . . . . . .	16 Bit	 0133	  Para	  Private 
 stacks . . . . . . . . . . . . .	16 Bit	 0000	  Para	  Private 
 
 
@@ -58,10 +80,11 @@ Symbols:
 
                 N a m e                 Type     Value    Attr
 
-br . . . . . . . . . . . . . . .	Byte	 0007	  datas	
+br . . . . . . . . . . . . . . .	Byte	 00FC	  datas	
 buf  . . . . . . . . . . . . . .	Byte	 0000	  datas	
-exit . . . . . . . . . . . . . .	L Near	 0022	  codes	
-input  . . . . . . . . . . . . .	L Near	 0005	  codes	
+exit . . . . . . . . . . . . . .	L Near	 0037	  codes	
+msg1 . . . . . . . . . . . . . .	Byte	 00FF	  datas	
+msg2 . . . . . . . . . . . . . .	Byte	 0119	  datas	
 start  . . . . . . . . . . . . .	L Near	 0000	  codes	
 
 	   0 Warnings

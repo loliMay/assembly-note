@@ -1,0 +1,142 @@
+Microsoft (R) Macro Assembler Version 6.11		    06/01/18 00:34:47
+tempfile.asm						     Page 1 - 1
+
+
+				; 通过人机对话，从键盘输入一个10进制数字(0-9)，查表求键入数字的平方值，存入al寄存器中，
+				; 并显示有关的提示信息。
+
+ 0000				datas segment
+ 0000 0D 0A 24				br db 0dh,0ah,24h	;回车换行
+ 0003 50 6C 65 61 73 65			msg1 db 'Please input the number you want to query: $'
+       20 69 6E 70 75 74
+       20 74 68 65 20 6E
+       75 6D 62 65 72 20
+       79 6F 75 20 77 61
+       6E 74 20 74 6F 20
+       71 75 65 72 79 3A
+       20 24
+ 002F 54 68 65 20 72 65			msg2 db 'The result is: $'
+       73 75 6C 74 20 69
+       73 3A 20 24
+ 003F 0000 0001 0004 0009	    table dw 0,1,4,9,16,25,36,49,64,81
+       0010 0019 0024
+       0031 0040 0051
+ 0053				datas ends
+
+ 0000				stacks segment
+				    ;此处输入堆栈段代码
+ 0000				stacks ends
+
+ 0000				codes segment
+				    assume cs:codes,ds:datas,ss:stacks
+ 0000				start:
+ 0000  B8 ---- R		    mov ax,datas
+ 0003  8E D8			    mov ds,ax
+				    
+ 0005  8D 16 0003 R		    lea dx,msg1	;9号功能,显示提示信息1
+ 0009  B4 09			    mov ah,9
+ 000B  CD 21			    int 21h
+				    
+ 000D  B4 01			    mov ah,1	;1号功能,键入一个字符并回显,AL=输入字符
+ 000F  CD 21			    int 21h
+ 0011  32 E4			    xor ah,ah
+ 0013  83 E8 30			    sub ax,'0'	;将ASCII码转换成十进制储存在内存中
+ 0016  50			    push ax
+				    
+ 0017  8D 16 0000 R		    lea dx,br	;9号功能,打印回车换行
+ 001B  B4 09			    mov ah,9
+ 001D  CD 21			    int 21h
+				    
+ 001F  8D 16 002F R		    lea dx,msg2	;9号功能,打印提示信息2
+ 0023  B4 09			    mov ah,9
+ 0025  CD 21			    int 21h
+				    
+ 0027  8D 1E 003F R		    lea bx,table	;查表
+ 002B  58			    pop ax
+ 002C  B1 02			    mov cl,2
+ 002E  F6 E1			    mul cl
+ 0030  8B F8			    mov di,ax
+ 0032  8B C7			    mov ax,di
+ 0034  8B 01			    mov ax,[bx+di]
+ 0036  E8 0004			    call printax
+				    
+ 0039  B4 4C			    mov ah,4ch	;退出程序,返回DOS
+ 003B  CD 21			    int 21h
+				    
+				;以10进制输出ax中的无符号整数(0-65536)
+ 003D				printax proc
+ 003D  BB 000A			      mov  bx, 10	;将bx赋值为10
+ 0040  0B C0			      or   ax, ax	;如果ax的值为0,则跳转至_0_
+ 0042  74 14			      jz   _0_
+ 0044				loop_p:
+ 0044  33 D2			      xor  dx, dx	;将dx清空
+ 0046  F7 F3			      div  bx		;除法默认被除数是ax,ax/10并将结果存在ax中
+ 0048  8B C8			      mov  cx, ax	;将商赋值给cx
+ 004A  0B CA			      or   cx, dx	;判断商和余数
+ 004C  74 10			      jz   _e_		;如果商和余数都为0,则结束递归(递归出口)
+ 004E  52			      push dx		;保存dx中的余数
+ 004F  E8 FFF2			      call loop_p	;递归
+ 0052  5A			      pop  dx		;将栈中余数弹出到dx中
+ 0053  80 C2 30			      add  dl, '0'  ;进行ASCII转码
+ 0056  EB 02			      jmp  _1_		;打印余数
+ 0058  B2 30			_0_:  mov  dl, '0'	;直接打印0
+ 005A  B4 02			_1_:  mov  ah, 2
+ 005C  CD 21			      int  21h
+ 005E  C3			_e_:  ret
+ 005F				printax endp
+
+				;打印回车换行
+ 005F				printbr proc
+ 005F  B2 0D				mov dl,0dh
+ 0061  B4 02				mov ah,2
+ 0063  CD 21				int 21h
+ 0065  B2 0A				mov dl,0ah
+ 0067  B4 02				mov ah,2
+ 0069  CD 21				int 21h
+ 006B  C3				ret
+ 006C				printbr endp
+
+ 006C				codes ends
+				    end start
+
+
+
+Microsoft (R) Macro Assembler Version 6.11		    06/01/18 00:34:47
+tempfile.asm						     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+codes  . . . . . . . . . . . . .	16 Bit	 006C	  Para	  Private 
+datas  . . . . . . . . . . . . .	16 Bit	 0053	  Para	  Private 
+stacks . . . . . . . . . . . . .	16 Bit	 0000	  Para	  Private 
+
+
+Procedures,  parameters and locals:
+
+                N a m e                 Type     Value    Attr
+
+printax  . . . . . . . . . . . .	P Near	 003D	  codes	Length= 0022 Public
+  loop_p . . . . . . . . . . . .	L Near	 0044	  codes	
+  _0_  . . . . . . . . . . . . .	L Near	 0058	  codes	
+  _1_  . . . . . . . . . . . . .	L Near	 005A	  codes	
+  _e_  . . . . . . . . . . . . .	L Near	 005E	  codes	
+printbr  . . . . . . . . . . . .	P Near	 005F	  codes	Length= 000D Public
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+br . . . . . . . . . . . . . . .	Byte	 0000	  datas	
+msg1 . . . . . . . . . . . . . .	Byte	 0003	  datas	
+msg2 . . . . . . . . . . . . . .	Byte	 002F	  datas	
+start  . . . . . . . . . . . . .	L Near	 0000	  codes	
+table  . . . . . . . . . . . . .	Word	 003F	  datas	
+
+	   0 Warnings
+	   0 Errors
