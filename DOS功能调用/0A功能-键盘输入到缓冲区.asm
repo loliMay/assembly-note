@@ -1,33 +1,28 @@
-DATAS SEGMENT
-    BUF DB 6 DUP('$')			;开辟6个字节的空间(包括字符串结束符'$')
-DATAS ENDS
+datas segment
+    buf db 7 dup('$')	;开辟6个字节的空间(包括Enter键和字符串结束符'$')
+datas ends
 
-STACKS SEGMENT
+stacks segment
     ;此处输入堆栈段代码
-STACKS ENDS
+stacks ends
 
-CODES SEGMENT
-    ASSUME CS:CODES,DS:DATAS,SS:STACKS
-START:
-    MOV AX,DATAS
-    MOV DS,AX
-INPUT:
-    LEA DX,BUF ;设置DX,使字符串首地址=DS:DX
-    MOV BX,DX
-    MOV BYTE PTR[BX],5	;设置缓冲区字节数为5
-    MOV AH,0AH
-    INT 21H
-    MOV DI,DX	;获取缓冲区首地址，放在DI中
-    MOV BH, [DI]   ;获取输入缓冲区的最大字符数  
-    MOV BL, [DI+1] ;获取输入缓冲区中实际输入的字符数
-    MOV AH,9
-    INT 21H
-EXIT:
-    MOV AH,4CH
-    INT 21H
-CODES ENDS
-    END START
+codes segment
+    assume cs:codes,ds:datas,ss:stacks
+start:
+    mov ax,datas
+    mov ds,ax
+input:
+    lea dx,buf ;设置dx,使字符串首地址=ds:dx
+    mov bx,dx
+    mov byte ptr[bx],6	;设置缓冲区字节数为5(不包括回车)
+    mov ah,0ah
+    int 21h
+exit:
+    mov ah,4ch
+    int 21h
+codes ends
+    end start
+    
 ;一个寄存器有两个字节
-
 
 

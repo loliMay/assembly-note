@@ -1,9 +1,9 @@
-Microsoft (R) Macro Assembler Version 6.11		    05/31/18 11:33:05
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 12:29:10
 tempfile.asm						     Page 1 - 1
 
 
  0000				DATAS SEGMENT
- 0000 48 65 6C 6C 6F 20		    BUF DB 'Hello World!',0DH,0AH,'$' ; 0DH,0AH 是回车换行
+ 0000 48 65 6C 6C 6F 20		    BUF DB 'Hello World!',0DH,0AH,24H ; 0DH,0AH 是回车换行
        57 6F 72 6C 64 21
        0D 0A 24
 				    ;注意设置的变量名不能是 STR
@@ -32,7 +32,8 @@ tempfile.asm						     Page 1 - 1
  0019				CODES ENDS
 				    END START
 
-Microsoft (R) Macro Assembler Version 6.11		    05/31/18 11:33:05
+
+Microsoft (R) Macro Assembler Version 6.11		    05/31/18 12:29:10
 tempfile.asm						     Symbols 2 - 1
 
 

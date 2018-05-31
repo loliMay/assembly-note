@@ -1,5 +1,5 @@
 DATAS SEGMENT
-    BUF DB 'Hello World!',0DH,0AH,'$' ; 0DH,0AH 是回车换行
+    BUF DB 'Hello World!',0DH,0AH,24H ; 0DH,0AH 是回车换行
     ;注意设置的变量名不能是 STR
     BUFF DB 'I am LoliMay.$'
 DATAS ENDS
@@ -23,4 +23,5 @@ START:
     INT 21H
 CODES ENDS
     END START
+
 
